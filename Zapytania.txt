@@ -1,0 +1,30 @@
+1. SELECT ra.id_aktywnosci, r.nazwa_aktywnosci, COUNT(*) AS liczba_realizacji
+FROM rejestr_aktywnosci ra
+JOIN rodzaj_aktywnosci r ON ra.id_aktywnosci = r.id_aktywnosci
+GROUP BY ra.id_aktywnosci
+ORDER BY liczba_realizacji DESC
+LIMIT 5;
+
+2.SELECT 
+    SUM(TIMESTAMPDIFF(MINUTE, ra.godzina_rozpoczecia, ra.godzina_zakonczenia)) / 60 AS lacznie_godzin
+FROM rejestr_aktywnosci ra
+JOIN pracownicy p ON ra.pesel = p.PESEL
+WHERE p.miejscowosc = 'Gliwice' AND ra.id_aktywnosci = (SELECT id_aktywnosci FROM rodzaj_aktywnosci WHERE nazwa_aktywnosci = 'Ścianka wspinaczkowa');
+
+3.SELECT p.imie, p.nazwisko
+FROM rejestr_aktywnosci ra
+JOIN pracownicy p ON ra.pesel = p.PESEL
+GROUP BY ra.DATA, ra.pesel
+HAVING COUNT(*) >= 2
+ORDER BY p.nazwisko;
+
+4.
+5.SELECT DISTINCT ra.pesel
+FROM rejestr_aktywnosci ra
+WHERE ra.pesel NOT IN (
+    SELECT pesel FROM rejestr_aktywnosci WHERE id_aktywnosci IN (SELECT id_aktywnosci FROM rodzaj_aktywnosci WHERE nazwa_aktywnosci IN ('Siłownia', 'Joga'))
+)
+AND ra.pesel IN (
+    SELECT pesel FROM rejestr_aktywnosci WHERE id_aktywnosci = (SELECT id_aktywnosci FROM rodzaj_aktywnosci WHERE nazwa_aktywnosci = 'Masaż')
+)
+ORDER BY ra.pesel;
